@@ -1,0 +1,67 @@
+ create table category_clicks as 
+ SELECT 
+    wl_customer_id,
+    SUM( CASE WHEN i_category_id = 0 THEN 1 ELSE 0 END) AS clicks_in_0,
+    SUM( CASE WHEN i_category_id = 1 THEN 1 ELSE 0 END) AS clicks_in_1,
+    SUM( CASE WHEN i_category_id = 2 THEN 1 ELSE 0 END) AS clicks_in_2,
+    SUM( CASE WHEN i_category_id = 3 THEN 1 ELSE 0 END) AS clicks_in_3,
+    SUM( CASE WHEN i_category_id = 4 THEN 1 ELSE 0 END) AS clicks_in_4,
+    SUM( CASE WHEN i_category_id = 5 THEN 1 ELSE 0 END) AS clicks_in_5,
+    SUM( CASE WHEN i_category_id = 6 THEN 1 ELSE 0 END) AS clicks_in_6,
+    SUM( CASE WHEN i_category_id = 7 THEN 1 ELSE 0 END) AS clicks_in_7,
+    SUM( CASE WHEN i_category_id = 8 THEN 1 ELSE 0 END) AS clicks_in_8,
+    SUM( CASE WHEN i_category_id = 9 THEN 1 ELSE 0 END) AS clicks_in_9,
+    SUM( CASE WHEN i_category_id = 10 THEN 1 ELSE 0 END) AS clicks_in_10,
+    SUM( CASE WHEN i_category_id = 11 THEN 1 ELSE 0 END) AS clicks_in_11,
+    SUM( CASE WHEN i_category_id = 12 THEN 1 ELSE 0 END) AS clicks_in_12,
+    SUM( CASE WHEN i_category_id = 13 THEN 1 ELSE 0 END) AS clicks_in_13,
+    SUM( CASE WHEN i_category_id = 14 THEN 1 ELSE 0 END) AS clicks_in_14,
+    SUM( CASE WHEN i_category_id = 15 THEN 1 ELSE 0 END) AS clicks_in_15,
+    SUM( CASE WHEN i_category_id = 16 THEN 1 ELSE 0 END) AS clicks_in_16,
+    SUM( CASE WHEN i_category_id = 17 THEN 1 ELSE 0 END) AS clicks_in_17,
+    SUM( CASE WHEN i_category_id = 18 THEN 1 ELSE 0 END) AS clicks_in_18,
+    SUM( CASE WHEN i_category_id = 19 THEN 1 ELSE 0 END) AS clicks_in_19
+  FROM web_clickstreams group by wl_customer_id;
+  
+  
+  select avg(clicks_in_0) from category_clicks
+  
+  
+   create table category_affin as 
+SELECT wl_customer_id,CASE WHEN clicks_in_0 > 9.416846652267818 THEN 1 ELSE 0 END AS interest,clicks_in_1,clicks_in_2,clicks_in_3,clicks_in_4,clicks_in_5,clicks_in_6,clicks_in_7,clicks_in_8,clicks_in_9,clicks_in_10,clicks_in_11,clicks_in_12,clicks_in_13,clicks_in_14,clicks_in_15,clicks_in_16,clicks_in_17,clicks_in_18,clicks_in_19 FROM bigbenchv2.category_clicks
+
+
+create table clusterData AS
+SELECT ss.ss_customer_id AS cid, 
+count(CASE WHEN i.i_class_id=1  THEN 1 ELSE NULL END) AS id1,
+count(CASE WHEN i.i_class_id=2  THEN 1 ELSE NULL END) AS id2,
+count(CASE WHEN i.i_class_id=3  THEN 1 ELSE NULL END) AS id3,
+count(CASE WHEN i.i_class_id=4  THEN 1 ELSE NULL END) AS id4,
+count(CASE WHEN i.i_class_id=5  THEN 1 ELSE NULL END) AS id5,
+count(CASE WHEN i.i_class_id=6  THEN 1 ELSE NULL END) AS id6,
+count(CASE WHEN i.i_class_id=7  THEN 1 ELSE NULL END) AS id7,
+count(CASE WHEN i.i_class_id=8  THEN 1 ELSE NULL END) AS id8,
+count(CASE WHEN i.i_class_id=9  THEN 1 ELSE NULL END) AS id9,
+count(CASE WHEN i.i_class_id=10 THEN 1 ELSE NULL END) AS id10,
+count(CASE WHEN i.i_class_id=11 THEN 1 ELSE NULL END) AS id11,
+count(CASE WHEN i.i_class_id=12 THEN 1 ELSE NULL END) AS id12,
+count(CASE WHEN i.i_class_id=13 THEN 1 ELSE NULL END) AS id13,
+count(CASE WHEN i.i_class_id=14 THEN 1 ELSE NULL END) AS id14,
+count(CASE WHEN i.i_class_id=15 THEN 1 ELSE NULL END) AS id15,
+count(CASE WHEN i.i_class_id=16 THEN 1 ELSE NULL END) AS id16
+FROM bigbenchv2.store_sales ss 
+    INNER JOIN bigbenchv2.items i ON ss.ss_item_id = i.i_item_id 
+    WHERE i.i_category_name IN ('cat#01','cat#02','cat#03','cat#04','cat#05','cat#06','cat#07','cat#08','cat#09','cat#10','cat#11','cat#12','cat#013','cat#14','cat#15') 
+    AND ss.ss_customer_id IS NOT NULL 
+GROUP BY ss.ss_customer_id HAVING count(ss.ss_item_id) > 3
+
+
+create table classificationData AS
+SELECT CASE pr_rating WHEN 1 THEN '0' WHEN 2 THEN '0' WHEN 3 THEN '0' WHEN 4 THEN '1' WHEN 5 THEN '1' END 
+AS pr_r_rating, pr_content FROM bigbenchv2.product_reviews WHERE pmod(pr_review_id, 5) IN (1,2,3)
+
+
+hive -e 'select * from bigbenchv_2sf1.clusterData' | sed 's/[\t]/,/g'  > /home/user1/MP/python/clusterData.csv
+
+hive -e 'select * from bigbenchv_2sf1.category_affin' | sed 's/[\t]/,/g'  > /home/user1/MP/python/classData.csv
+
